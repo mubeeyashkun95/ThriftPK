@@ -1,21 +1,7 @@
 <script setup lang="ts">
 import { ref, h } from 'vue'
 
-const mobileMenuOpen = ref(false)
-
-const menuItems = [
-  { name: 'Home', path: '/', icon: 'home' },
-  { name: 'Shop', path: '/shop', icon: 'shopping-bag' },
-  { name: 'About', path: '/about', icon: 'information-circle' },
-  { name: 'Contact', path: '/contact', icon: 'chat-bubble' },
-]
-
-const openWhatsApp = () => {
-  const phone = '92300123456789'
-  window.open(`https://wa.me/${phone}?text=Hi%20StepStyle!%20I'd%20like%20to%20know%20more`, '_blank')
-}
-
-// Clean, sharp SVG icons
+// Fix: Properly type the icons object
 const icons = {
   home: () => h('svg', { class: 'w-6 h-6', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
     h('path', {
@@ -52,6 +38,22 @@ const icons = {
       d: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
     })
   ]),
+} as const
+
+// Fix: Add type-safe key lookup
+type IconKey = keyof typeof icons
+
+const mobileMenuOpen = ref(false)
+
+const menuItems = [
+  { name: 'Home', path: '/', icon: 'home' },
+  { name: 'Shop', path: '/shop', icon: 'shopping-bag' },
+  { name: 'About', path: '/about', icon: 'information-circle' },
+  { name: 'Contact', path: '/contact', icon: 'chat-bubble' },
+]
+
+const openWhatsApp = () => {
+  window.open('https://wa.me/923001234567?text=Hi%20StepStyle!%20I%20saw%20your%20amazing%20collection', '_blank')
 }
 </script>
 
@@ -77,8 +79,7 @@ const icons = {
           exact-active-class="text-cyan-400"
         >
           <!-- Icon -->
-          <component
-            :is="icons[item.icon]"
+          <component :is="icons[item.icon as IconKey]""
             class="transition-all duration-300 w-7 h-7"
             :class="[
               $route.path === item.path 
@@ -145,7 +146,7 @@ const icons = {
           leave-from-class="translate-x-0"
           leave-to-class="translate-x-full"
         >
-          <div class="absolute top-0 right-0 h-full border-l shadow-2xl w-80 bg-white/95 backdrop-blur-2xl border-white/30">
+          <div v-if="mobileMenuOpen" class="absolute top-0 right-0 h-full border-l shadow-2xl w-80 bg-white/95 backdrop-blur-2xl border-white/30">
             <div class="flex flex-col items-center gap-8 pt-24 pb-12">
               <router-link
                 v-for="item in menuItems"
