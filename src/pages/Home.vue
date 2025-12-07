@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, h } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
-import { getTrendingProducts, getCategories, products } from '@/data/products'
+import { getTrendingProducts, getCategories } from '@/data/products'
 import { reviews } from '@/data/reviews'
+import type { Product } from '@/data/products'
 
-const trendingProducts = getTrendingProducts(8) // Show 8 for better grid
+const trendingProducts = getTrendingProducts(8)
 const categories = getCategories()
 const currentReviewIndex = ref(0)
 
@@ -21,10 +22,31 @@ const openWhatsApp = () => {
   window.open('https://wa.me/923001234567?text=Hi%20StepStyle%20Co!%20I%20saw%20your%20amazing%20collection%20', '_blank')
 }
 
-// Fake add to cart (replace with real cart later)
+// Fake add to cart
 const handleAddToCart = (product: any) => {
   alert(`${product.name} added to cart!`)
 }
+
+// Category images
+function getCategoryImage(category: string): string {
+  const map: Record<string, string> = {
+    Sneakers: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/948a7c80-89c9-4a18-9e1e-3c91f8e5e331/air-force-1-07-shoes-WrLlWX.png',
+    Formal: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/u1v7n5k2e1q1r1w1n1l5/air-monarch-iv-training-shoes-4Mlg3r.png',
+    Casual: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/bd0e07a5-6791-4d04-8e08-3c8633c424b0/blazer-low-77-vintage-shoes.png',
+    Sports: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/eebb9c68-9b66-4e2f-9e9e-4e0c6d214748/air-zoom-pegasus-41-running-shoes.png',
+  }
+  return map[category] || map.Sneakers
+}
+
+// ProductCard props (if used directly)
+const props = defineProps<{
+  product?: Product
+}>()
+
+const discountPercentage = computed(() => {
+  if (!props.product?.originalPrice) return 0
+  return Math.round(((props.product.originalPrice - props.product.price) / props.product.originalPrice) * 100)
+})
 </script>
 
 <template>
@@ -349,14 +371,3 @@ const handleAddToCart = (product: any) => {
   </div>
 </template>
 
-<script lang="ts">
-function getCategoryImage(category: string): string {
-  const map: Record<string, string> = {
-    Sneakers: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop',
-    Formal: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-    Casual: 'https://images.unsplash.com/photo-1562183241-b937e1de65e4?w=800&h=600&fit=crop',
-    Sports: 'https://images.unsplash.com/photo-1469395446860-7b3d4c373347?w=800&h=600&fit=crop',
-  }
-  return map[category] || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop'
-}
-</script>
